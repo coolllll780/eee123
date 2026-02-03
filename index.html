@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Global Anonymous Chat</title>
+
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0f1220;
+      color: white;
+      display: flex;
+      justify-content: center;
+    }
+    .card {
+      margin-top: 40px;
+      background: #171a2e;
+      padding: 20px;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 600px;
+    }
+    textarea {
+      width: 100%;
+      min-height: 80px;
+      border-radius: 8px;
+      padding: 10px;
+      resize: none;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      margin-top: 20px;
+    }
+    li {
+      background: #222654;
+      margin-bottom: 8px;
+      padding: 10px;
+      border-radius: 8px;
+      word-wrap: break-word;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <h2>🌍 One Massive Anonymous Chat</h2>
+
+    <textarea id="msg" placeholder="Type anonymously..."></textarea>
+    <button onclick="send()">Send</button>
+
+    <ul id="messages"></ul>
+  </div>
+
+  <script>
+    const API = "/api/messages";
+
+    async function send() {
+      const box = document.getElementById("msg");
+      const text = box.value.trim();
+      if (!text) return;
+
+      await fetch(API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text })
+      });
+
+      box.value = "";
+      load();
+    }
+
+    async function load() {
+      const res = await fetch(API);
+      const data = await res.json();
+
+      const list = document.getElementById("messages");
+      list.innerHTML = "";
+
+      data.forEach(m => {
+        const li = document.createElement("li");
+        li.textContent = m.text;
+        list.appendChild(li);
+      });
+    }
+
+    load();
+    setInterval(load, 2000); // refresh every 2 seconds
+  </script>
+</body>
+</html>
